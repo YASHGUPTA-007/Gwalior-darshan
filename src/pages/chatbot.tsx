@@ -96,7 +96,7 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
   };
 
   return (
-    <div className="pt-24">
+    <div className="pt-24 ">
       <section className="py-24 bg-stone-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">

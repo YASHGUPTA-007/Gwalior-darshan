@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const FadeInSection = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -19,16 +19,31 @@ export default function Footer() {
   const sections = [
     {
       title: "INFO",
-      links: ["About Us", "Contact", "Location"]
+      links: [
+        { label: "About Us", to: "/about" },
+        {
+          label: "Contact",
+          to: "https://docs.google.com/forms/d/e/1FAIpQLScJ8kcZQwUs381POvU8ZL7oCDJnAfwUAX2Axt0HFe8zum03Sg/viewform?usp=sharing",
+        },
+        { label: "Location", to: "/location" },
+      ],
     },
     {
       title: "VISIT",
-      links: ["Tours", "Opening Hours", "Accessibility"]
+      links: [
+        { label: "Tours", to: "#" },
+        { label: "Opening Hours", to: "#" },
+        { label: "Accessibility", to: "#" },
+      ],
     },
     {
       title: "HERITAGE",
-      links: ["Monuments", "History", "Conservation"]
-    }
+      links: [
+        { label: "Monuments", to: "#" },
+        { label: "History", to: "#" },
+        { label: "Conservation", to: "#" },
+      ],
+    },
   ];
 
   return (
@@ -40,16 +55,30 @@ export default function Footer() {
               <h3 className="font-serif text-lg mb-4">{section.title}</h3>
               <ul className="space-y-2">
                 {section.links.map((link) => (
-                  <motion.li key={link} whileHover={{ x: 10 }}>
-                    <Link to="#" className="hover:text-stone-300">
-                      {link}
-                    </Link>
+                  <motion.li key={link.label} whileHover={{ x: 10 }}>
+                    {link.to.startsWith("/") ? (
+                      <Link
+                        to={link.to}
+                        className="hover:text-stone-300 transition"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.to}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-stone-300 transition"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </motion.li>
                 ))}
               </ul>
             </FadeInSection>
           ))}
-          
+
           <FadeInSection>
             <h3 className="font-serif text-lg mb-4">CONNECT</h3>
             <p className="text-stone-400 mb-4">
