@@ -13,7 +13,6 @@ interface Message {
 }
 
 export default function ChatBot() {
-  // Initial bot message with options (display only)
   const initialBotMessage: Message = {
     id: "init",
     content: `Welcome to the Gwalior Heritage Explorer!
@@ -32,15 +31,19 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
   const [messages, setMessages] = useState<Message[]>([initialBotMessage]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Initialize API
-  const apiKey = "AIzaSyCb8O6CQYR2uiRF7CEWJ4mkgxASrvBzb1Y";
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;;
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -51,7 +54,6 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
     e.preventDefault();
     if (!input.trim()) return;
 
-    // Add user message to chat
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim(),
@@ -65,7 +67,6 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
     setIsLoading(true);
 
     try {
-      // Prepend the instruction to restrict info to Gwalior only
       const promptText = `You are an expert on the history and heritage of Gwalior city. Only share information about Gwalior. Now answer the following question: ${userQuery}`;
 
       const result = await model.generateContent([promptText]);
@@ -96,18 +97,24 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
   };
 
   return (
-    <div className="pt-24 ">
+    <div className="pt-24">
       <section className="py-24 bg-stone-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-serif mb-4">
               Ask About Gwalior's Heritage
             </h2>
-            <div className="h-80 overflow-y-auto border p-4 mb-4 rounded">
+
+            <div
+              ref={messagesContainerRef}
+              className="h-80 overflow-y-auto border p-4 mb-4 rounded"
+            >
               {messages.length === 0 ? (
                 <div className="text-center text-gray-400 mt-10">
                   <p className="text-lg">How can I assist you today?</p>
-                  <p className="text-sm mt-2 text-gray-500">Ask me anything!</p>
+                  <p className="text-sm mt-2 text-gray-500">
+                    Ask me anything!
+                  </p>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -123,9 +130,12 @@ Feel free to ask about any of these topics or any other aspect of Gwalior's hist
                   </div>
                 ))
               )}
-              <div ref={messagesEndRef} />
             </div>
-            <form onSubmit={handleSubmit} className="flex items-center border-t pt-2">
+
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center border-t pt-2"
+            >
               <input
                 type="text"
                 className="flex-1 p-2 border rounded-l focus:outline-none"

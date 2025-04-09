@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MapPin, Menu, LogIn, UserPlus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Menu, X, LogIn, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 
@@ -9,6 +9,7 @@ export default function Header() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   React.useEffect(() => {
@@ -26,10 +27,12 @@ export default function Header() {
   const handleAuthClick = (mode: "login" | "register") => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
+    setMobileMenuOpen(false);
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    setMobileMenuOpen(false);
   };
 
   const navItems = [
@@ -60,6 +63,7 @@ export default function Header() {
               </motion.div>
             </Link>
 
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item, i) => (
                 <motion.div key={item.name}
@@ -112,11 +116,72 @@ export default function Header() {
               )}
             </div>
 
-            <motion.div className="md:hidden" whileTap={{ scale: 0.9 }}>
-              <Menu className="h-6 w-6 text-stone-700" />
+            {/* Mobile menu toggle */}
+            <motion.div
+              className="md:hidden"
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6 text-stone-700" />
+              ) : (
+                <Menu className="h-6 w-6 text-stone-700" />
+              )}
             </motion.div>
           </div>
         </div>
+
+        {/* Mobile Dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: 'auto' }}
+              exit={{ height: 0 }}
+              className="md:hidden bg-white border-t border-stone-200 overflow-hidden"
+            >
+              <div className="flex flex-col space-y-4 p-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`text-stone-700 hover:text-stone-900 ${
+                      location.pathname === item.path ? 'font-semibold' : ''
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+                {user ? (
+                  <button
+                    onClick={handleSignOut}
+                    className="text-left bg-stone-900 text-white px-4 py-2 hover:bg-stone-800"
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleAuthClick("login")}
+                      className="flex items-center space-x-2 text-stone-700 hover:text-stone-900"
+                    >
+                      <LogIn className="h-5 w-5" />
+                      <span>Sign In</span>
+                    </button>
+                    <button
+                      onClick={() => handleAuthClick("register")}
+                      className="flex items-center space-x-2 bg-stone-900 text-white px-4 py-2 hover:bg-stone-800"
+                    >
+                      <UserPlus className="h-5 w-5" />
+                      <span>Register</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       <AuthModal
